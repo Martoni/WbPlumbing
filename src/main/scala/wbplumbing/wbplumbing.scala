@@ -16,7 +16,6 @@ class WbMaster (val dwidth: Int,
     val stb_o = Output(Bool())
     val ack_i = Input(Bool())
     val cyc_o = Output(Bool())
-    override def cloneType = (new WbMaster(dwidth, awidth)).asInstanceOf[this.type]
 }
 
 // Wishbone slave interface
@@ -29,7 +28,6 @@ class WbSlave (val dwidth: Int,
   val stb_i = Input(Bool())
   val ack_o = Output(Bool())
   val cyc_i = Input(Bool())
-  override def cloneType = (new WbSlave(dwidth, awidth)).asInstanceOf[this.type]
 }
 
 // Wishbone Intercon Pass Trought : one master, one slave
@@ -42,11 +40,11 @@ class WbInterconPT (val awbm: WbMaster,
 
   assert(awbm.dwidth == awbs.dwidth,
     "only same datasize supported")
-  assert(awbm.awidth == awbs.awidth,
-    "it's passthrought intercon, same same address size is required")
+  assert(awbm.awidth >= awbs.awidth,
+    "Address size of master should be >= of slave address size")
 
   // wbm <-> wbs simple connexions
-  io.wbs.adr_i := io.wbm.adr_o
+  io.wbs.adr_i := io.wbm.adr_o(awbs.awidth-1, 0)
   io.wbs.dat_i := io.wbm.dat_o
   io.wbs.we_i  := io.wbm.we_o 
   io.wbs.stb_i := io.wbm.stb_o
