@@ -30,6 +30,19 @@ class WbSlave (private val dwidth: Int,
   val cyc_i = Input(Bool())
 }
 
-//class WbIntercon extends Module {
-//  
-//}
+class WbIntercon (val dwidth: Int) extends Module {
+  val io = IO(new Bundle{
+    val wbm = Flipped(new WbMaster(dwidth, 2))
+    val wbs = Flipped(new WbSlave(dwidth, 2))
+  })
+
+  // XXX delete me
+  io.wbm.dat_i := 1.U
+  io.wbm.ack_i := 1.U
+  io.wbs.adr_i := 1.U
+  io.wbs.dat_i := 1.U
+  io.wbs.we_i  := 1.U
+  io.wbs.stb_i := 1.U
+  io.wbs.cyc_i := 1.U
+
+}

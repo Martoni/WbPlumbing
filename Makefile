@@ -4,7 +4,7 @@ hdl:
 	$(SBT) "runMain wbplumbing.WbPlumbing"
 
 test:
-	$(SBT) "test:runMain wbplumbing.TestWbPlumbing"
+	$(SBT) "test:testOnly wbplumbing.WbInterconSpec"
 
 publishlocal:
 	$(SBT) publishLocal
