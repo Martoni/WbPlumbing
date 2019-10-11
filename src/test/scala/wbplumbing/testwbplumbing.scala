@@ -45,6 +45,10 @@ class TestWbIntercon (dut: WbInterconPT) extends PeekPokeTester(dut){
   expect(dut.io.wbs.dat_o, 0, "Wrong value read on wbs.dat_o")
 }
 
+class TestWbInterconDualSlave (dut: WbInterconOneMaster) extends PeekPokeTester(dut){
+  step(1)
+}
+
 class WbInterconPTSpec extends FlatSpec with Matchers {
   behavior of "A WbInterconPT"
 
@@ -55,6 +59,22 @@ class WbInterconPTSpec extends FlatSpec with Matchers {
     val wbs = new WbSlave(dataWidth, 2)
     chisel3.iotesters.Driver.execute(args, () => new WbInterconPT(wbm, wbs))
           {c => new TestWbIntercon(c)} should be(true)
+
+  }
+}
+
+class WbInterconOneMasterSpec extends FlatSpec with Matchers {
+  behavior of "A WbInterconOneMaster"
+
+  it should "read and write wishbone value on two slaves" in {
+    val args = general.optn
+    val dataWidth = 16
+    val wbm =  new WbMaster(dataWidth, 2)
+    val wbs1 = new WbSlave(dataWidth, 2)
+    val wbs2 = new WbSlave(dataWidth, 2)
+
+    chisel3.iotesters.Driver.execute(args, () => new WbInterconOneMaster(wbm, Seq(wbs1, wbs2)))
+          {c => new TestWbInterconDualSlave(c)} should be(true)
 
   }
 }

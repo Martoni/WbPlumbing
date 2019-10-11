@@ -24,7 +24,7 @@ class WbSlave (val dwidth: Int,
   val adr_i = Input(UInt(awidth.W))
   val dat_i = Input(UInt(dwidth.W))
   val dat_o = Output(UInt(dwidth.W))
-  val we_i = Input(Bool())
+  val we_i  = Input(Bool())
   val stb_i = Input(Bool())
   val ack_o = Output(Bool())
   val cyc_i = Input(Bool())
@@ -53,4 +53,22 @@ class WbInterconPT (val awbm: WbMaster,
   io.wbm.ack_i := io.wbs.ack_o
   io.wbm.dat_i := io.wbs.dat_o
 
+}
+
+// Wishbone Intercone with one master and several slaves
+// data bus is same size as master
+class WbInterconOneMaster(val awbm: WbMaster,
+                          val awbs: Seq[WbSlave]) extends Module {
+    val io = IO(new Bundle{
+      val wbm = Flipped(new WbMaster(awbm.dwidth, awbm.awidth))
+      val wbs = MixedVec(awbs.map{i => new WbSlave(i.dwidth, i.awidth)})
+    })
+
+    // XXX deleteme
+    io.wbm.dat_i := 0.U
+    io.wbm.ack_i := 0.U
+    for(i <- 0 until io.wbs.size){
+      io.wbs(i).dat_o := 0.U
+      io.wbs(i).ack_o := 0.U
+    }
 }
