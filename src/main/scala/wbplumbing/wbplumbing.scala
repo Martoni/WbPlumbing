@@ -48,7 +48,7 @@ class WbInterconPT (val awbm: WbMaster,
   // wbm <-> wbs simple connexions
   io.wbs.adr_i := io.wbm.adr_o(awbs.awidth-1, 0)
   io.wbs.dat_i := io.wbm.dat_o
-  io.wbs.we_i  := io.wbm.we_o 
+  io.wbs.we_i  := io.wbm.we_o
   io.wbs.stb_i := io.wbm.stb_o
   io.wbs.cyc_i := io.wbm.cyc_o
 
@@ -63,14 +63,41 @@ class WbInterconOneMaster(val awbm: WbMaster,
                           val awbs: Seq[WbSlave]) extends Module {
     val io = IO(new Bundle{
       val wbm = Flipped(new WbMaster(awbm.dwidth, awbm.awidth))
-      val wbs = MixedVec(awbs.map{i => new WbSlave(i.dwidth, i.awidth)})
+      val wbs = MixedVec(awbs.map{i => Flipped(new WbSlave(i.dwidth, i.awidth, i.iname))})
     })
 
-    // XXX deleteme
+    var addrSlave = Seq(0)
+
     io.wbm.dat_i := 0.U
     io.wbm.ack_i := 0.U
-    for(i <- 0 until io.wbs.size){
-      io.wbs(i).dat_o := 0.U
-      io.wbs(i).ack_o := 0.U
+    for(wbs <- io.wbs) {
+      val slaveInterfaceName = wbs.iname
+      // Doing some checks
+      assert(awbm.dwidth == wbs.dwidth,
+        "Error all databusses should be same size")
+      assert(awbm.awidth > wbs.awidth,
+        f"Error address width is too large for slave $slaveInterfaceName")
+      // Address decoding
+      addrSlave = addrSlave ++ Seq(addrSlave.last + (1 << wbs.awidth))
+
+      wbs.adr_i := io.wbm.adr_o
+      wbs.dat_i := io.wbm.dat_o
+      wbs.we_i := false.B
+      wbs.stb_i := false.B
+      wbs.cyc_i := false.B
+      when(io.wbm.stb_o === true.B && io.wbm.cyc_o === true.B){
+        when(io.wbm.adr_o < addrSlave.last.U &&
+                    io.wbm.adr_o >= addrSlave(addrSlave.length - 2).U){
+          wbs.we_i  := io.wbm.we_o
+          wbs.stb_i := io.wbm.stb_o
+          wbs.cyc_i := io.wbm.cyc_o
+          io.wbm.dat_i := wbs.dat_o
+          io.wbm.ack_i := wbs.ack_o
+        }
+      }
+
     }
+    val masterAddrMax = 1 << io.wbm.awidth
+    assert(addrSlave.last <= masterAddrMax,
+      f"Not enouth address space available for all slaves (0x$masterAddrMax%X)")
 }
