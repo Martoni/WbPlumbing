@@ -8,7 +8,8 @@ import chisel3.Driver
 // minimal signals definition for a wishbone bus
 // (no SEL, no TAG, no pipeline, ...)
 class WbMaster (val dwidth: Int,
-                val awidth: Int) extends Bundle {
+                val awidth: Int,
+                val iname: String = "Noname") extends Bundle {
     val adr_o = Output(UInt(awidth.W))
     val dat_i = Input(UInt(dwidth.W))
     val dat_o = Output(UInt(dwidth.W))
@@ -20,7 +21,8 @@ class WbMaster (val dwidth: Int,
 
 // Wishbone slave interface
 class WbSlave (val dwidth: Int,
-               val awidth: Int) extends Bundle {
+               val awidth: Int,
+               val iname: String = "Noname") extends Bundle {
   val adr_i = Input(UInt(awidth.W))
   val dat_i = Input(UInt(dwidth.W))
   val dat_o = Output(UInt(dwidth.W))
@@ -55,7 +57,7 @@ class WbInterconPT (val awbm: WbMaster,
 
 }
 
-// Wishbone Intercone with one master and several slaves
+// Wishbone Intercon with one master and several slaves
 // data bus is same size as master
 class WbInterconOneMaster(val awbm: WbMaster,
                           val awbs: Seq[WbSlave]) extends Module {

@@ -69,9 +69,9 @@ class WbInterconOneMasterSpec extends FlatSpec with Matchers {
   it should "read and write wishbone value on two slaves" in {
     val args = general.optn
     val dataWidth = 16
-    val wbm =  new WbMaster(dataWidth, 2)
-    val wbs1 = new WbSlave(dataWidth, 2)
-    val wbs2 = new WbSlave(dataWidth, 2)
+    val wbm =  new WbMaster(dataWidth, 2, "Spi2WbMaster")
+    val wbs1 = new WbSlave(dataWidth, 2, "Ksz1")
+    val wbs2 = new WbSlave(dataWidth, 2, "Ksz2")
 
     chisel3.iotesters.Driver.execute(args, () => new WbInterconOneMaster(wbm, Seq(wbs1, wbs2)))
           {c => new TestWbInterconDualSlave(c)} should be(true)
