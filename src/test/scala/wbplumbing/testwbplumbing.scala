@@ -59,22 +59,21 @@ class TestWbInterconDualSlave (dut: WbInterconOneMaster) extends PeekPokeTester(
   poke(dut.io.wbm.cyc_o, 1)
   poke(dut.io.wbm.stb_o, 1)
 // Doesn't work 
-//  for(wbs <- dut.io.wbs) {
-//    wbs.ack_o := 0.U
-//  }
+  for(wbs <- dut.io.wbs) {
+    wbs.ack_o := 0.U
+  }
   step(1)
   poke(dut.io.wbm.adr_o, 0)
   poke(dut.io.wbm.dat_o, 0)
   poke(dut.io.wbm.we_o, 0)
   poke(dut.io.wbm.cyc_o, 0)
   poke(dut.io.wbm.stb_o, 0)
-//  poke(dut.io.wbs(1).ack_o, 1)
-//  expect(dut.io.wbs(1).we_i, 1)
-//  expect(dut.io.wbs(1).cyc_i, 1)
-//  step(1)
-//  poke(dut.io.wbs(0).ack_o, 0)
-//  poke(dut.io.wbs(1).ack_o, 0)
-
+  poke(dut.io.wbs(1).ack_o, 1)
+  expect(dut.io.wbs(1).we_i, 1)
+  expect(dut.io.wbs(1).cyc_i, 1)
+  step(1)
+  poke(dut.io.wbs(0).ack_o, 0)
+  poke(dut.io.wbs(1).ack_o, 0)
 }
 
 class WbInterconPTSpec extends FlatSpec with Matchers {
