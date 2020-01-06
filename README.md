@@ -71,3 +71,4 @@ To use it the master bundle must be given 'as it' in parameter, but slave should
 
 * [MDIO](https://github.com/Martoni/MDIO): Generate ethernet phy MDIO protocol frame
 * [Spi2Wb](https://github.com/Martoni/spi2wb): Drive a Wishbone master bus with SPI protocol.
+* [wbGPIO](https://github.com/Martoni/wbGPIO): General Purpose Input Output
