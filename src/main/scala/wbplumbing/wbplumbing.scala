@@ -70,6 +70,7 @@ class WbInterconOneMaster(val awbm: WbMaster,
 
     io.wbm.dat_i := 0.U
     io.wbm.ack_i := 0.U
+    val dataByteSize = awbm.dwidth/8
     for(wbs <- io.wbs) {
       val slaveInterfaceName = wbs.iname
       // Doing some checks
@@ -79,7 +80,7 @@ class WbInterconOneMaster(val awbm: WbMaster,
         f"Error address width is too large for slave $slaveInterfaceName")
       // Address decoding
       addrSlave = addrSlave ++ Seq(addrSlave.last + (1 << wbs.awidth))
-      println(wbs.iname + " -> " + addrSlave(addrSlave.length-2).toHexString)
+      println(f"@${(addrSlave(addrSlave.length-2))*dataByteSize}%08X: ${wbs.iname}")
 
       wbs.adr_i := io.wbm.adr_o
       wbs.dat_i := io.wbm.dat_o
