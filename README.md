@@ -8,7 +8,7 @@ WbPlumbing is a scala package that can be published localy. Then to install it w
 ```shell
 $ git clone https://github.com/Martoni/WbPlumbing.git
 $ cd WbPlumbing
-$ make publishlocal
+$ sbt "publishLocal"
 ```
 
 To use it under your project, add this line in your `build.sbt` file :
