@@ -3,7 +3,6 @@ package wbplumbing
 import chisel3._
 import chisel3.util._
 import chisel3.experimental._
-import chisel3.Driver
 
 // minimal signals definition for a wishbone bus
 // (no SEL, no TAG, no pipeline, ...)
