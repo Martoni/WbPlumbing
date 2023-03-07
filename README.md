@@ -13,7 +13,7 @@ $ sbt "publishLocal"
 
 To use it under your project, add this line in your `build.sbt` file :
 ```scala
-libraryDependencies ++= Seq("org.armadeus" %% "wbplumbing" % "0.1")
+libraryDependencies ++= Seq("org.armadeus" %% "wbplumbing" % "0.2.1")
 ```
 
 And import package in your chisel code :
