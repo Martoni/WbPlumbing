@@ -1,7 +1,7 @@
 // See README.md for license details.
 
 val majorChiselVersion = "6"
-val minorChiselVersion = "1.0"
+val minorChiselVersion = "2.0"
 val chiselVersion = majorChiselVersion + "." + minorChiselVersion
 
 scalaVersion     := "2.13.8"
