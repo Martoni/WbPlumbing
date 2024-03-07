@@ -1,8 +1,11 @@
 # WbPlumbing
-Wishbone plumbing written in Chisel3. The aim of this project is mainly to
+
+Wishbone plumbing written in [Chisel](https://www.chisel-lang.org/). The aim of this project is mainly to
 generate Wishbone intercon as described in [specification](https://github.com/fossi-foundation/wishbone).
 
 # Installation and usages
+
+## Install
 
 WbPlumbing is a scala package that can be published localy. Then to install it we can simply clone the project and publish it localy 
 ```shell
@@ -13,12 +16,39 @@ $ sbt "publishLocal"
 
 To use it under your project, add this line in your `build.sbt` file :
 ```scala
-libraryDependencies ++= Seq("org.armadeus" %% "wbplumbing" % "0.2.1")
+libraryDependencies ++= Seq("org.armadeus" %% "wbplumbing" % "6.1.0")
 ```
 
 And import package in your chisel code :
 ```scala
 import wbplumbing
+```
+
+## Test
+
+[Verilator](https://verilator.org) version `5.012` should be used to avoid
+`C++14` dependency error.
+
+Then use `sbt` to launch tests:
+
+```Shell
+$ sbt test
+[info] welcome to sbt 1.4.9 (Private Build Java 16.0.1)
+[info] loading project definition from /opt/chiselmod/WbPlumbing/project
+[info] loading settings for project root from build.sbt ...
+[info] set current project to wbplumbing (in build file:/opt/chiselmod/WbPlumbing/)
+@00000000: Ksz1
+@00000008: Ksz2
+[info] WbInterconPTSpec:
+[info] - WbInterconPT should read and write wishbone value on one slave
+[info] WbInterconOneMasterSpec:
+[info] - A WbInterconOneMaster should read and write wishbone value on two slaves
+[info] Run completed in 3 seconds, 615 milliseconds.
+[info] Total number of tests run: 2
+[info] Suites: completed 2, aborted 0
+[info] Tests: succeeded 2, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 4 s, completed 7 mars 2024, 17:21:19
 ```
 
 # Modules description

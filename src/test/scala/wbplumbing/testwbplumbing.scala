@@ -1,10 +1,10 @@
 package wbplumbing
 
-import org.scalatest.{Matchers, FlatSpec}
 import chisel3._
-import chisel3.tester._
-import chisel3.util._
-import chisel3.experimental._
+import chisel3.experimental.BundleLiterals._
+import chisel3.simulator.EphemeralSimulator._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
 object general {
   val optn = Array("-td", "output",
@@ -13,17 +13,15 @@ object general {
                   )
 }
 
+class WbInterconPTSpec extends AnyFreeSpec with Matchers {
 
-class WbInterconPTSpec extends FlatSpec with ChiselScalatestTester with Matchers {
-  behavior of "A WbInterconPT"
-
-  it should "read and write wishbone value on one slave" in {
+  "WbInterconPT should read and write wishbone value on one slave" in {
     val args = general.optn
     val dataWidth = 16
     val wbm = new WbMaster(dataWidth, 2)
     val wbs = new WbSlave(dataWidth, 2)
 
-    test(new WbInterconPT(wbm, wbs)){ dut =>
+    simulate(new WbInterconPT(wbm, wbs)){ dut =>
       // just a stupid testbench that verify point to point connexion
       dut.io.wbm.adr_o.poke(1.U)
       dut.io.wbm.dat_o.poke(1.U)
@@ -59,17 +57,16 @@ class WbInterconPTSpec extends FlatSpec with ChiselScalatestTester with Matchers
   }
 }
 
-class WbInterconOneMasterSpec extends FlatSpec with ChiselScalatestTester with Matchers {
-  behavior of "A WbInterconOneMaster"
+class WbInterconOneMasterSpec extends AnyFreeSpec with Matchers {
 
-  it should "read and write wishbone value on two slaves" in {
+   "A WbInterconOneMaster should read and write wishbone value on two slaves" in {
     val args = general.optn
     val dataWidth = 16
     val wbm =  new WbMaster(dataWidth, 7, "Spi2WbMaster")
     val wbs1 = new WbSlave(dataWidth, 2, "Ksz1")
     val wbs2 = new WbSlave(dataWidth, 2, "Ksz2")
 
-    test(new WbInterconOneMaster(wbm, Seq(wbs1, wbs2))) { dut =>
+    simulate(new WbInterconOneMaster(wbm, Seq(wbs1, wbs2))) { dut =>
       val firstSlave = 0
       val secondSlave = 4.U
       dut.clock.step(1)
