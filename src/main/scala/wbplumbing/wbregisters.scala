@@ -14,8 +14,8 @@ import chisel3.experimental._
 class WbOneReg(dwidth: Int, addr: UInt, init_value: UInt) extends Module {
   val io = IO(new Bundle {
     val wbs = new WbSlave(dwidth=dwidth, awidth=1)
-    val reg_out = Output(UInt(dwidth.W))
-    val reg_in = Flipped(Decoupled(UInt(dwidth.W)))
+    val reg_out = Decoupled(UInt(dwidth.W))
+    val reg_in =  Flipped(Decoupled(UInt(dwidth.W)))
   })
 
   val wbReg = RegInit(init_value)
@@ -23,6 +23,7 @@ class WbOneReg(dwidth: Int, addr: UInt, init_value: UInt) extends Module {
   io.wbs.dat_o := 0.U(16.W)
   io.wbs.ack_o := false.B
   io.reg_in.ready := true.B
+  io.reg_out.valid := true.B
   when(io.wbs.stb_i === true.B && io.wbs.cyc_i === true.B){
     when(io.wbs.adr_i === addr){
       when(io.wbs.we_i === false.B){
@@ -30,11 +31,12 @@ class WbOneReg(dwidth: Int, addr: UInt, init_value: UInt) extends Module {
       }.otherwise{
         wbReg := io.wbs.dat_i
         io.reg_in.ready := false.B
+        io.reg_out.valid := false.B
       }
       io.wbs.ack_o := true.B
     }
   }
-  io.reg_out := wbReg
+  io.reg_out.bits := wbReg
   when(io.reg_in.valid === true.B && io.reg_in.ready === true.B){
     wbReg := io.reg_in.bits
   }
