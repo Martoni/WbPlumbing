@@ -1,8 +1,8 @@
 // See README.md for license details.
 
 val majorChiselVersion = "6"
-val minorChiselVersion = "2.0"
-val chiselVersion = majorChiselVersion + "." + minorChiselVersion
+val minorChiselVersion = "2"
+val chiselVersion = majorChiselVersion + "." + minorChiselVersion + ".0"
 
 scalaVersion     := "2.13.8"
 version          := chiselVersion
@@ -12,7 +12,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "wbplumbing",
     libraryDependencies ++= Seq(
-      "org.chipsalliance" %% "chisel" % chiselVersion,
+      "org.chipsalliance" %% "chisel" % majorChiselVersion + "." + minorChiselVersion + ".3",
       "org.scalatest" %% "scalatest" % "3.2.16" % "test",
     ),
     scalacOptions ++= Seq(
