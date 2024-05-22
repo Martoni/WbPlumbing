@@ -5,7 +5,7 @@ val minorChiselVersion = "2"
 val chiselVersion = majorChiselVersion + "." + minorChiselVersion + ".0"
 
 scalaVersion     := "2.13.8"
-version          := majorChiselVersion + minorChiselVersion + ".1"
+version          := majorChiselVersion + "." + minorChiselVersion + ".2"
 organization     := "org.armadeus"
 
 lazy val root = (project in file("."))
