@@ -4,9 +4,16 @@ val majorChiselVersion = "6"
 val minorChiselVersion = "2"
 val chiselVersion = majorChiselVersion + "." + minorChiselVersion + ".0"
 
-scalaVersion     := "2.13.8"
-version          := majorChiselVersion + "." + minorChiselVersion + ".4"
+scalaVersion     := "2.13.12"
+version          := majorChiselVersion + "." + minorChiselVersion + ".6"
 organization     := "org.armadeus"
+
+credentials += Credentials(
+  "GitHub Package Registry",
+  "maven.pkg.github.com",
+  "_",
+  System.getenv("GITHUB_TOKEN")
+)
 
 lazy val root = (project in file("."))
   .settings(
@@ -23,5 +30,7 @@ lazy val root = (project in file("."))
       "-Ymacro-annotations",
     ),
     addCompilerPlugin("org.chipsalliance" % "chisel-plugin" % chiselVersion cross CrossVersion.full),
-
   )
+
+publishTo := Some("GitHub Martoni Apache Maven Packages" at "https://maven.pkg.github.com/Martoni/WbPlumbing")
+publishMavenStyle := true
