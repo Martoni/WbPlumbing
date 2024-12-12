@@ -8,7 +8,8 @@ import chisel3.experimental._
 // (no SEL, no TAG, no pipeline, ...)
 class WbMaster (val dwidth: Int,
                 val awidth: Int,
-                val iname: String = "Noname") extends Bundle {
+                val iname: String = "Noname",
+                val feature_err: Boolean = false) extends Bundle {
     val adr_o = Output(UInt(awidth.W))
     val dat_i = Input(UInt(dwidth.W))
     val dat_o = Output(UInt(dwidth.W))
@@ -16,18 +17,21 @@ class WbMaster (val dwidth: Int,
     val stb_o = Output(Bool())
     val ack_i = Input(Bool())
     val cyc_o = Output(Bool())
+    val err_i = if (feature_err == true) Some(Input(Bool())) else None
 }
 
 // Wishbone slave interface
 class WbSlave (val dwidth: Int,
                val awidth: Int,
-               val iname: String = "Noname") extends Bundle {
+               val iname: String = "Noname",
+               val feature_err: Boolean = false) extends Bundle {
   val adr_i = Input(UInt(awidth.W))
   val dat_i = Input(UInt(dwidth.W))
   val dat_o = Output(UInt(dwidth.W))
   val we_i  = Input(Bool())
   val stb_i = Input(Bool())
   val ack_o = Output(Bool())
+  val err_o = if (feature_err == true) Some(Output(Bool())) else None
   val cyc_i = Input(Bool())
 }
 
@@ -35,8 +39,8 @@ class WbSlave (val dwidth: Int,
 class WbInterconPT (val awbm: WbMaster,
                     val awbs: WbSlave) extends Module {
   val io = IO(new Bundle{
-    val wbm = Flipped(new WbMaster(awbm.dwidth, awbm.awidth))
-    val wbs = Flipped(new WbSlave(awbs.dwidth, awbs.awidth))
+    val wbm = Flipped(new WbMaster(awbm.dwidth, awbm.awidth, awbm.iname, awbm.feature_err))
+    val wbs = Flipped(new WbSlave(awbs.dwidth, awbs.awidth, awbs.iname, awbs.feature_err))
   })
 
   assert(awbm.dwidth == awbs.dwidth,
@@ -54,21 +58,28 @@ class WbInterconPT (val awbm: WbMaster,
   io.wbm.ack_i := io.wbs.ack_o
   io.wbm.dat_i := io.wbs.dat_o
 
+  if (io.wbm.feature_err && io.wbs.feature_err) {
+    io.wbm.err_i.get := io.wbs.err_o.get
+  }
 }
 
 // Wishbone Intercon with one master and several slaves
 // data bus is same size as master
 class WbInterconOneMaster(val awbm: WbMaster,
-                          val awbs: Seq[WbSlave]) extends Module {
+                          val awbs: Seq[WbSlave]
+                          ) extends Module {
     val io = IO(new Bundle{
-      val wbm = Flipped(new WbMaster(awbm.dwidth, awbm.awidth))
-      val wbs = MixedVec(awbs.map{i => Flipped(new WbSlave(i.dwidth, i.awidth, i.iname))})
+      val wbm = Flipped(new WbMaster(awbm.dwidth, awbm.awidth, awbm.iname, awbm.feature_err))
+      val wbs = MixedVec(awbs.map{i => Flipped(new WbSlave(i.dwidth, i.awidth, i.iname, i.feature_err))})
     })
 
     var addrSlave = Seq(0)
 
     io.wbm.dat_i := 0.U
     io.wbm.ack_i := 0.U
+    if (io.wbm.feature_err) {
+      io.wbm.err_i.get := false.B
+    }
     val dataByteSize = awbm.dwidth/8
     for(wbs <- io.wbs) {
       val slaveInterfaceName = wbs.iname
@@ -94,6 +105,13 @@ class WbInterconOneMaster(val awbm: WbMaster,
           wbs.cyc_i := io.wbm.cyc_o
           io.wbm.dat_i := wbs.dat_o
           io.wbm.ack_i := wbs.ack_o
+          if (wbs.feature_err) {
+            io.wbm.err_i.get := wbs.err_o.get
+          }
+        }.otherwise {
+          if (io.wbm.feature_err) {
+            io.wbm.err_i.get := true.B
+          }
         }
       }
 
