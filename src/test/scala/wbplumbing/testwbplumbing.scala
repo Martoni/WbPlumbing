@@ -104,38 +104,48 @@ class WbInterconOneMasterSpec extends AnyFlatSpec with Matchers {
 
   it should "raise the err_i line of the master if read address is unmapped" in {
     val dataWidth = 16
-    val wbm =  new WbMaster(dataWidth, 3, "Spi2WbMaster", feature_err=true)
+    val wbm =  new WbMaster(dataWidth, 7, "Spi2WbMaster", feature_err=true)
     val wbs1 = new WbSlave(dataWidth, 2, "Ksz1")
+    val wbs2 = new WbSlave(dataWidth, 2, "Ksz2")
 
-    simulate(new WbInterconOneMaster(wbm, Seq(wbs1))) { dut =>
+    simulate(new WbInterconOneMaster(wbm, Seq(wbs1, wbs2))) { dut =>
       dut.io.wbm.err_i.get.expect(false.B, "bad init of err_i")
 
       // Read on unmapped address
-      dut.io.wbm.adr_o.poke(0x4)
+      dut.io.wbm.adr_o.poke(0x8)
       dut.io.wbm.we_o.poke(false.B)
       dut.io.wbm.cyc_o.poke(true.B)
       dut.io.wbm.stb_o.poke(true.B)
       dut.clock.step(1)
-      dut.io.wbm.err_i.get.expect(true.B, "err_i not raised")
+      dut.io.wbm.err_i.get.expect(true.B, "err_i not raised on unmapped address read")
 
       // Stop transaction
       dut.io.wbm.cyc_o.poke(false.B)
       dut.io.wbm.stb_o.poke(false.B)
       dut.clock.step(1)
       dut.io.wbm.err_i.get.expect(false.B, "err_i not resetted correctly")
+
+      // Read on mapped address
+      dut.io.wbm.adr_o.poke(0x0)
+      dut.io.wbm.we_o.poke(false.B)
+      dut.io.wbm.cyc_o.poke(true.B)
+      dut.io.wbm.stb_o.poke(true.B)
+      dut.clock.step(1)
+      dut.io.wbm.err_i.get.expect(false.B, "err_i raised on mapped address read")
     }
   }
 
   it should "raise the err_i line of the master if write address is unmapped" in {
     val dataWidth = 16
-    val wbm =  new WbMaster(dataWidth, 3, "Spi2WbMaster", feature_err=true)
+    val wbm =  new WbMaster(dataWidth, 7, "Spi2WbMaster", feature_err=true)
     val wbs1 = new WbSlave(dataWidth, 2, "Ksz1")
+    val wbs2 = new WbSlave(dataWidth, 2, "Ksz2")
 
-    simulate(new WbInterconOneMaster(wbm, Seq(wbs1))) { dut =>
+    simulate(new WbInterconOneMaster(wbm, Seq(wbs1, wbs2))) { dut =>
       dut.io.wbm.err_i.get.expect(false.B, "bad init of err_i")
 
       // Write on unmapped address
-      dut.io.wbm.adr_o.poke(0x4)
+      dut.io.wbm.adr_o.poke(0x8)
       dut.io.wbm.we_o.poke(true.B)
       dut.io.wbm.cyc_o.poke(true.B)
       dut.io.wbm.stb_o.poke(true.B)
@@ -148,6 +158,14 @@ class WbInterconOneMasterSpec extends AnyFlatSpec with Matchers {
       dut.io.wbm.stb_o.poke(false.B)
       dut.clock.step(1)
       dut.io.wbm.err_i.get.expect(false.B, "err_i not resetted correctly")
+
+      // Write on mapped address
+      dut.io.wbm.adr_o.poke(0x0)
+      dut.io.wbm.we_o.poke(true.B)
+      dut.io.wbm.cyc_o.poke(true.B)
+      dut.io.wbm.stb_o.poke(true.B)
+      dut.clock.step(1)
+      dut.io.wbm.err_i.get.expect(false.B, "err_i raised on mapped address write")
     }
   }
 
