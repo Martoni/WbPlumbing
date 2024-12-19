@@ -5,7 +5,7 @@ val minorChiselVersion = "2"
 val chiselVersion = majorChiselVersion + "." + minorChiselVersion + ".0"
 
 scalaVersion     := "2.13.12"
-version          := majorChiselVersion + "." + minorChiselVersion + ".8"
+version          := majorChiselVersion + "." + minorChiselVersion + ".9"
 organization     := "org.armadeus"
 
 credentials += Credentials(
