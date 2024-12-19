@@ -105,18 +105,22 @@ class WbInterconOneMaster(val awbm: WbMaster,
           wbs.cyc_i := io.wbm.cyc_o
           io.wbm.dat_i := wbs.dat_o
           io.wbm.ack_i := wbs.ack_o
-          if (wbs.feature_err) {
+          if (io.wbm.feature_err && wbs.feature_err) {
             io.wbm.err_i.get := wbs.err_o.get
-          }
-        }.otherwise {
-          if (io.wbm.feature_err) {
-            io.wbm.err_i.get := true.B
           }
         }
       }
-
     }
+
     val masterAddrMax = 1 << io.wbm.awidth
     assert(addrSlave.last <= masterAddrMax,
       f"Not enouth address space available for all slaves (0x$masterAddrMax%X)")
+
+    if (io.wbm.feature_err && (addrSlave.last < masterAddrMax)) {
+      when(io.wbm.stb_o === true.B && io.wbm.cyc_o === true.B){
+        when (io.wbm.adr_o >= addrSlave.last.U) {
+          io.wbm.err_i.get := true.B
+        }
+      }
+    }
 }
